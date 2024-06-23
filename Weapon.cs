@@ -1,45 +1,46 @@
-namespace Napilnic
+namespace Napilnik
 {
-    public class Weapon
+    public abstract class Weapon
     {
         private readonly Clip _clip;
         private readonly Player _player;
 
-        public Weapon(Clip clip, Player player)
+        protected Weapon(Clip clip, Player player)
         {
             _clip = clip;
             _player = player;
         }
-        private void Fire(Player player)
+
+        public void Fire(Player player)
         {
-            if(_clip.CurrentBulletsCount > 0)
+            if (_clip.CurrentBulletsCount > 0)
             {
                 _clip.RemoveBullet();
-                _player.TakeDamage(_clip.Bullet.Damage)
+                _player.TakeDamage(_clip.Bullet.Damage);
             }
             else
             {
-                throw new InvalidOperatorException("Недостаточно патронов. Выполните перезарядку");
+                throw new InvalidOperationException("Недостаточно патронов. Выполните перезарядку");
             }
         }
     }
 
-    public class Clip
+    public abstract class Clip
     {
-        public Bullet Bullet {get; private set;};
-        public uint CurrentBulletsCount {get; private set; } 
-        public uint MaxBulletsCount {get; private set; }
+        public Bullet Bullet { get; private set; }
+        public uint CurrentBulletsCount { get; private set; }
+        public uint MaxBulletsCount { get; private set; }
 
-        public Clip(Bullet bullet, uint maxBulletsCount, uint currentBulletsCount)
+        protected Clip(Bullet bullet, uint maxBulletsCount, uint currentBulletsCount)
         {
-            Bullet = bullet; 
+            Bullet = bullet;
             MaxBulletsCount = maxBulletsCount;
             CurrentBulletsCount = currentBulletsCount;
         }
 
         public void RemoveBullet()
         {
-            if(CurrentBulletsCount > 0)
+            if (CurrentBulletsCount > 0)
             {
                 CurrentBulletsCount--;
             }
@@ -48,25 +49,24 @@ namespace Napilnic
                 throw new InvalidOperationException();
             }
         }
-
     }
 
-    public class Bullet
+    public abstract class Bullet
     {
-        public uint Damage {get; private set; }
+        public uint Damage { get; private set; }
     }
 
 
-    public class Player
+    public abstract class Player
     {
-        public uint Health {get; private set}
-        public uint isDead {get; private set}
+        public bool IsDead { get; private set; }
+        private uint _health;
 
         public void TakeDamage(uint damage)
         {
-            if(damage <= Health)
+            if (damage <= _health)
             {
-                Health -= damage;
+                _health -= damage;
             }
             else
             {
@@ -76,24 +76,23 @@ namespace Napilnic
 
         private void Die()
         {
-            Health = 0;
-            isDead = true;
+            _health = 0;
+            IsDead = true;
         }
     }
 
     public class Bot
     {
-        public Weapon Weapon {get; private set}
+        private Weapon Weapon { get; set; }
 
         public Bot(Weapon weapon)
         {
             Weapon = weapon;
         }
 
-        private void OnSeePlayer(Player player)
+        public void OnSeePlayer(Player player)
         {
             Weapon.Fire(player);
         }
     }
 }
-    

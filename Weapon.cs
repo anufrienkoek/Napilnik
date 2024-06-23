@@ -1,4 +1,4 @@
-namespace Napilnik
+namespace NapilnicTask1
 {
     public abstract class Weapon
     {
@@ -13,53 +13,42 @@ namespace Napilnik
 
         public void Fire(Player player)
         {
-            if (_clip.CurrentBulletsCount > 0)
-            {
-                _clip.RemoveBullet();
-                _player.TakeDamage(_clip.Bullet.Damage);
-            }
-            else
-            {
-                throw new InvalidOperationException("Недостаточно патронов. Выполните перезарядку");
-            }
+            if (_clip.CurrentBulletsCount <= 0) return;
+            
+            _clip.RemoveBullet();
+            _player.TakeDamage(_clip.Bullet.Damage);
         }
     }
 
     public abstract class Clip
     {
-        public Bullet Bullet { get; private set; }
-        public uint CurrentBulletsCount { get; private set; }
-        public uint MaxBulletsCount { get; private set; }
+        public Bullet Bullet {get; private set;}
+        public uint CurrentBulletsCount {get; private set; } 
+        public uint MaxBulletsCount {get; private set; }
 
         protected Clip(Bullet bullet, uint maxBulletsCount, uint currentBulletsCount)
         {
-            Bullet = bullet;
+            Bullet = bullet; 
             MaxBulletsCount = maxBulletsCount;
             CurrentBulletsCount = currentBulletsCount;
         }
 
         public void RemoveBullet()
         {
-            if (CurrentBulletsCount > 0)
-            {
+            if(CurrentBulletsCount > 0) 
                 CurrentBulletsCount--;
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
         }
     }
 
     public abstract class Bullet
     {
-        public uint Damage { get; private set; }
+        public uint Damage {get; private set; }
     }
 
 
     public abstract class Player
     {
-        public bool IsDead { get; private set; }
+        public bool IsDead {get; private set; }
         private uint _health;
 
         public void TakeDamage(uint damage)
@@ -83,16 +72,13 @@ namespace Napilnik
 
     public class Bot
     {
-        private Weapon Weapon { get; set; }
+        private Weapon Weapon {get; set; }
 
         public Bot(Weapon weapon)
         {
             Weapon = weapon;
         }
 
-        public void OnSeePlayer(Player player)
-        {
-            Weapon.Fire(player);
-        }
+        public void OnSeePlayer(Player player) => Weapon.Fire(player);
     }
 }

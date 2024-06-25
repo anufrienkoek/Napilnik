@@ -34,7 +34,7 @@ namespace NapilnicTask1
             _currentBulletsCount = currentBulletsCount;
         }
 
-        public Bullet { get; }
+        public Bullet Bullet { get; }
 
         public void RemoveBullet()
         {

@@ -1,45 +1,48 @@
+using System;
+
 namespace NapilnicTask1
 {
     public abstract class Weapon
     {
-        private readonly Clip _clip;
-
         protected Weapon(Clip clip) 
         {
-            _clip = clip ?? throw new ArgumentNullException(nameof(clip));
+            Clip = clip ?? throw new ArgumentNullException(nameof(clip));
         }
+        
+        public Clip Clip { get; }
 
         public void Fire(Player player)
         {
-            if (player == null) throw new ArgumentNullException(nameof(player));
-            if (_clip.CurrentBulletsCount <= 0) return;
+            if (player == null) 
+                throw new ArgumentNullException(nameof(player));
             
-            _clip.RemoveBullet();
-            player.TakeDamage(_clip.Bullet.Damage);
+            if (Clip.CurrentBulletsCount <= 0) 
+                return;
+            
+            Clip.RemoveBullet();
+            player.TakeDamage(Clip.Bullet.Damage);
         }
     }
 
     public abstract class Clip
     {
-        private readonly uint _maxBulletsCount;
-        private uint _currentBulletsCount;
-
-        protected Clip(Bullet bullet, uint maxBulletsCount, uint currentBulletsCount)
+        protected Clip(Bullet bullet, uint currentBulletsCount)
         {
             Bullet = bullet ?? throw new ArgumentNullException(nameof(bullet));
-            if (maxBulletsCount <= 0) throw new ArgumentOutOfRangeException(nameof(maxBulletsCount));
-            if (currentBulletsCount > maxBulletsCount) throw new ArgumentOutOfRangeException(nameof(currentBulletsCount));
 
-            _maxBulletsCount = maxBulletsCount;
-            _currentBulletsCount = currentBulletsCount;
+            if (currentBulletsCount == 0) 
+                throw new ArgumentOutOfRangeException(nameof(currentBulletsCount));
+
+            CurrentBulletsCount = currentBulletsCount;
         }
 
         public Bullet Bullet { get; }
+        public uint CurrentBulletsCount { get; private set; }
 
         public void RemoveBullet()
         {
-            if(_currentBulletsCount > 0) 
-                _currentBulletsCount--;
+            if(CurrentBulletsCount > 0) 
+                CurrentBulletsCount--;
         }
     }
 
@@ -47,12 +50,13 @@ namespace NapilnicTask1
     {
         protected Bullet (uint damage)
         {
-            if (damage <= 0) throw new ArgumentOutOfRangeException(nameof(damage));
+            if (damage <= 0) 
+                throw new ArgumentOutOfRangeException(nameof(damage));
         
             Damage = damage;
         }
 
-        public uint Damage {get; }
+        public uint Damage { get; }
     }
 
 
@@ -62,18 +66,17 @@ namespace NapilnicTask1
 
         protected Player(uint health)
         {
-            if (health <= 0) throw new ArgumentOutOfRangeException(nameof(health));
+            if (health <= 0) 
+                throw new ArgumentOutOfRangeException(nameof(health));
 
             _health = health;
             IsDead = false;
         }
 
-        public bool IsDead {get; private set; }
+        private bool IsDead { get; set; }
 
         public void TakeDamage(uint damage)
         {
-            if (damage <= 0) throw new ArgumentOutOfRangeException(nameof(damage));
-
             if (damage < _health)
             {
                 _health -= damage;
@@ -91,19 +94,22 @@ namespace NapilnicTask1
         }
     }
 
-    public class Bot
+    public abstract class Bot
     {
-        private Weapon _weapon;
+        private readonly Weapon _weapon;
 
-        public Bot(Weapon weapon)
+        protected Bot(Weapon weapon)
         {
-            _weapon = weapon;
+            _weapon = weapon ?? throw new ArgumentNullException(nameof(weapon));
         }
 
         public void OnSeePlayer(Player player) 
         {
-            if (player == null) throw new ArgumentNullException(nameof(player));
-            _weapon.Fire(player);
+            if (player == null) 
+                throw new ArgumentNullException(nameof(player));
+            
+            if(_weapon.Clip.CurrentBulletsCount > 0)
+                _weapon.Fire(player);
         }
     }
 }
